@@ -23,7 +23,8 @@ rescuer_damaged_image = pygame.image.load("res/rescuer-damaged.png")
 rescuer_rect = rescuer_image.get_rect()
 game_over = False
 # Define the restart button
-restart_button = pygame.Rect(250, 400, 100, 50)  # x, y, width, height
+# restart_button = pygame.Rect(250, 400, 100, 50)  # x, y, width, height
+restart_rect = pygame.Rect(WINDOW_WIDTH/2 - 50, WINDOW_HEIGHT/2 + 50, 100, 50)
 
 # Define the Animal class
 class Animal:
@@ -120,11 +121,11 @@ def show_message(message, show_restart_button=False):
 
     if show_restart_button:
         # Draw restart button
-        restart_button_rect = pygame.draw.rect(window, (255, 0, 0), (WINDOW_WIDTH/2 - 50, WINDOW_HEIGHT/2 + 50, 100, 50))
+        restart_button_rect = pygame.draw.rect(window, (255, 0, 0), (WINDOW_WIDTH/2 - 50, WINDOW_HEIGHT/2 + 35, 100, 50))
         restart_button_font = pygame.font.Font(None, 40)
         restart_button_text = restart_button_font.render("Restart", True, (255, 255, 255))
-        restart_button_text_rect = restart_button_text.get_rect(center=restart_button_rect.center)
-        window.blit(restart_button_text, restart_button_text_rect)
+        # restart_button_text_rect = restart_button_text.get_rect(center=restart_rect.center)
+        window.blit(restart_button_text, restart_rect)
 
     pygame.display.update()
 
@@ -205,7 +206,7 @@ while True:
                 show_message("Game Over", True)
 
                 # Check if the restart button is clicked
-                if pygame.mouse.get_pressed()[0] and restart_button.collidepoint(pygame.mouse.get_pos()):
+                if pygame.mouse.get_pressed()[0] and restart_rect.collidepoint(pygame.mouse.get_pos()):
                     restart_game()
 
     # Update the window
