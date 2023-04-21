@@ -85,13 +85,25 @@ for i in range(14):
     x+=40
 
 def restart_game():
-    global game_over, rescuer_rect, animals, obstacle_list
+    global game_over, rescuer_rect, rescuer_image, animals, obstacle_list
+    rescuer_image = pygame.image.load("res/rescuer-right.png")
     game_over = False
     rescuer_rect.x = 50
     rescuer_rect.y = 50
     for animal in animals:
         animal.is_vanished = False
     obstacle_list.empty()
+    
+    fire = Obstacle("res/flame.png")
+    fire.setxy(150, 250)
+    garbage = Obstacle("res/garbage.png")
+    garbage.setxy(250, 350)
+    cactus = Obstacle("res/cactus.png")
+    cactus.setxy(350, 450)
+    obstacle_list.add(fire)
+    obstacle_list.add(garbage)
+    obstacle_list.add(cactus)
+
     x = 150
     y = 150
     for i in range(14):
@@ -99,7 +111,6 @@ def restart_game():
         fire.setxy(x, y)
         obstacle_list.add(fire)
         x+=40
-    show_message("", False)
     
 def show_message(message, show_restart_button=False):
     font = pygame.font.Font(None, 36)
@@ -178,27 +189,24 @@ while True:
     for animal in animals:
         animal.draw(window)
         
-    for obstacle in obstacle_list:
-        if rescuer_rect.colliderect(obstacle.rect):
-            rescuer_image = rescuer_damaged_image
-
-            # Show the game over message and restart button
-            show_message("Game Over", True)
-
-            # Check if the restart button is clicked
-            if pygame.mouse.get_pressed()[0] and restart_button.collidepoint(pygame.mouse.get_pos()):
-                # Restart the game
-                game_over = False
-                restart_game()
-
-            #infinite loop on this part
-            game_over = True
-            break
+    
 
     # Draw the rescuer image
     window.blit(rescuer_image, rescuer_rect)
 
     obstacle_list.draw(window)
+
+    for obstacle in obstacle_list:
+            if rescuer_rect.colliderect(obstacle.rect):
+                rescuer_image = rescuer_damaged_image
+                game_over = True
+                
+                # Show the game over message and restart button
+                show_message("Game Over", True)
+
+                # Check if the restart button is clicked
+                if pygame.mouse.get_pressed()[0] and restart_button.collidepoint(pygame.mouse.get_pos()):
+                    restart_game()
 
     # Update the window
     pygame.display.update()
