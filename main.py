@@ -1,5 +1,4 @@
 import pygame
-import random
 import sys
 
 
@@ -54,10 +53,12 @@ BUTTON_WIDTH = 120
 BUTTON_HEIGHT = 50
 
 # Define button positions
-start_button_rect = pygame.Rect((WINDOW_WIDTH/2 - BUTTON_WIDTH/2, WINDOW_HEIGHT/2 - BUTTON_HEIGHT), (BUTTON_WIDTH, BUTTON_HEIGHT))
-quit_button_rect = pygame.Rect((WINDOW_WIDTH/2 - BUTTON_WIDTH/2, WINDOW_HEIGHT/2 + BUTTON_HEIGHT), (BUTTON_WIDTH, BUTTON_HEIGHT))
+start_button_rect = pygame.Rect((WINDOW_WIDTH/2 - 100, WINDOW_HEIGHT/2 - 50, 200, 100))
+htp_button_rect = pygame.Rect((WINDOW_WIDTH/2 - 100, WINDOW_HEIGHT/2 + 75, 200, 100))
+quit_button_rect = pygame.Rect((WINDOW_WIDTH/2 - 100, WINDOW_HEIGHT/2 + 200, 200, 100))
+restart_button_rect = pygame.Rect((WINDOW_WIDTH/2 - 300, WINDOW_HEIGHT/2 + 250, 200, 100))
+next_level_button_rect = pygame.Rect((WINDOW_WIDTH/2 - 100, WINDOW_HEIGHT/2 - 100, 200, 100))
 
-# Define the restart button
 restart_rect = pygame.draw.rect(window, (255, 0, 0), (WINDOW_WIDTH/2 - 50, WINDOW_HEIGHT/2 + 50, 100, 50))
 
 # Define the Animal class
@@ -113,7 +114,7 @@ obstacle_list.add(fire)
 obstacle_list.add(garbage)
 obstacle_list.add(cactus)
 
-def draw_menu():
+def draw_start_menu():
 
     # Draw the menu background image
     menu_bg_image = pygame.image.load("res/animalRescueBackground.png")
@@ -121,29 +122,53 @@ def draw_menu():
 
     # load start button image, display button
     start_button_image = pygame.image.load("res/startButton.png")
-    start_button_rect = start_button_image.get_rect()
-    start_button_rect.x = WINDOW_WIDTH/2 - 100
-    start_button_rect.y = WINDOW_HEIGHT/2 - 50
     window.blit(start_button_image, start_button_rect)
 
-    # load quit button image, display button
+    # load how to play button image, display button
+    # HTP: How To Play
     htp_button_image = pygame.image.load("res/howToPlayButton.png")
-    htp_button_rect = start_button_image.get_rect()
-    htp_button_rect.x = WINDOW_WIDTH/2 - 100
-    htp_button_rect.y = WINDOW_HEIGHT/2 + 75
     window.blit(htp_button_image, htp_button_rect)
 
     # load quit button image, display button
     quit_button_image = pygame.image.load("res/quitButton.png")
-    quit_button_rect = start_button_image.get_rect()
-    quit_button_rect.x = WINDOW_WIDTH/2 - 100
-    quit_button_rect.y = WINDOW_HEIGHT/2 + 200
     window.blit(quit_button_image, quit_button_rect)
 
-    pygame.display.update()
+def draw_level_failed_menu():
+    # Draw the menu background image
+    menu_bg_image = pygame.image.load("res/levelFailedBackground.png")
+    window.blit(menu_bg_image, (0, 0))
+
+    restart_button_image = pygame.image.load("res/restartButton.png")
+    restart_button_rect.x = WINDOW_WIDTH/2 - 300
+    restart_button_rect.y = WINDOW_HEIGHT/2 + 250
+    window.blit(restart_button_image, restart_button_rect)
+
+    quit_button_rect.x = WINDOW_WIDTH/2 + 100
+    quit_button_rect.y = WINDOW_HEIGHT/2 + 250
+    quit_button_image = pygame.image.load("res/quitButton.png")
+    window.blit(quit_button_image, quit_button_rect)
+
+def draw_level_passed_menu():
+    # Draw the menu background image
+    menu_bg_image = pygame.image.load("res/levelPassedBackground.png")
+    window.blit(menu_bg_image, (0, 0))
+
+    next_level_button_image = pygame.image.load("res/nextLevelButton.png")
+    window.blit(next_level_button_image, next_level_button_rect)
+
+    restart_button_image = pygame.image.load("res/restartButton.png")
+    restart_button_rect.x = WINDOW_WIDTH/2 - 100
+    restart_button_rect.y = WINDOW_HEIGHT/2 + 25
+    window.blit(restart_button_image, restart_button_rect)
+
+    quit_button_image = pygame.image.load("res/quitButton.png")
+    quit_button_rect.x = WINDOW_HEIGHT/2 - 100
+    quit_button_rect.y = WINDOW_HEIGHT/2 + 150
+    window.blit(quit_button_image, quit_button_rect)
 
 def restart_game():
-    global game_over, rescuer_rect, rescuer_image, animals, obstacle_list
+    global game_over, rescuer_rect, rescuer_image, animals, obstacle_list, animal_counter
+    animal_counter = 0
     rescuer_image = pygame.image.load("res/rescuer-right.png")
     game_over = False
     rescuer_rect.x = 50
@@ -169,6 +194,12 @@ def restart_game():
         fire.setxy(x, y)
         obstacle_list.add(fire)
         x+=40
+
+def level_not_passed_yet():
+    animal_counter_rect = pygame.Rect(WINDOW_WIDTH/2 - 250, WINDOW_HEIGHT/2, 100, 50)
+    animal_counter_font = pygame.font.SysFont('Arial', 25)
+    animal_counter_text = animal_counter_font.render("Collect at least " + str(required_number_of_animals) + " animals in order to pass the level.", True, (255, 255, 255))
+    window.blit(animal_counter_text, animal_counter_rect)
     
 def show_message(message, game_status):
     font = pygame.font.Font(None, 36)
@@ -195,9 +226,15 @@ def show_message(message, game_status):
 
     pygame.display.update()
 
-def draw_animal_counter(window, animal_counter):
+def draw_animal_counter(window):
     font = pygame.font.SysFont('Arial', 20)
     counter_text = font.render("Animals Collected: " + str(animal_counter), True, (0, 0, 0))
+    counter_rect = counter_text.get_rect()
+    counter_rect.topright = (WINDOW_WIDTH - 10, 40)
+    window.blit(counter_text, counter_rect)
+def draw_required_animals(window):
+    font = pygame.font.SysFont('Arial', 20)
+    counter_text = font.render("Animals Required : " + str(required_number_of_animals), True, (0, 0, 0))
     counter_rect = counter_text.get_rect()
     counter_rect.topright = (WINDOW_WIDTH - 10, 10)
     window.blit(counter_text, counter_rect)
@@ -209,6 +246,24 @@ MOVE_LEFT = pygame.K_LEFT
 MOVE_RIGHT = pygame.K_RIGHT
 MOVE_UP = pygame.K_UP
 MOVE_DOWN = pygame.K_DOWN
+def menu_loop():
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if start_button_rect.collidepoint(mouse_pos):
+                    game_loop()
+                elif quit_button_rect.collidepoint(mouse_pos):
+                    pygame.quit()
+                    sys.exit()
+                elif restart_button_rect.collidepoint(mouse_pos):
+                    restart_game()
+                    game_loop()
+
+        pygame.display.update()
 
 def game_loop():
     global game_over, rescuer_rect, rescuer_image, animals, obstacle_list, animal_counter
@@ -267,7 +322,8 @@ def game_loop():
         window.blit(animal_sanctuary_image, animal_sanctuary_rect)
         window.blit(vet_sign_image, vet_sign_rect)
 
-        draw_animal_counter(window, animal_counter)
+        draw_required_animals(window)
+        draw_animal_counter(window)
 
         obstacle_list.draw(window)
 
@@ -276,10 +332,14 @@ def game_loop():
                     rescuer_image = rescuer_damaged_image
 
                     # Show the game over message and restart button
-                    show_message("Game Over", "failed")
-                    
+                    # show_message("Game Over", "failed")
+                    draw_level_failed_menu()
 
                     # Check if the restart button is clicked
+                    if pygame.mouse.get_pressed()[0] and restart_rect.collidepoint(pygame.mouse.get_pos()):
+                        restart_game()
+                        animal_counter = 0
+
                     if pygame.mouse.get_pressed()[0] and restart_rect.collidepoint(pygame.mouse.get_pos()):
                         restart_game()
                         animal_counter = 0
@@ -287,28 +347,10 @@ def game_loop():
         if rescuer_rect.colliderect(animal_sanctuary_rect):
             if animal_counter >= required_number_of_animals:
                 level_passed = True
-                show_message("Level Passed", "passed")
-                if pygame.mouse.get_pressed()[0] and restart_rect.collidepoint(pygame.mouse.get_pos()):
-                        print(level_passed)
-            else:
-                show_message("Level not passed", "not passed")
-
-        # Update the window
+                draw_level_passed_menu()
+            elif animal_counter <= required_number_of_animals:
+                level_not_passed_yet()
         pygame.display.update()
 
-draw_menu()
-
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = pygame.mouse.get_pos()
-            if start_button_rect.collidepoint(mouse_pos):
-                game_loop()
-            elif quit_button_rect.collidepoint(mouse_pos):
-                pygame.quit()
-                sys.exit()
-
-    pygame.display.update()
+draw_start_menu()
+menu_loop()
