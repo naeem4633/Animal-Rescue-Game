@@ -19,12 +19,26 @@ FOREST_GREEN = (34, 139, 34)
 
 # Load the rescuer image
 rescuer_image = pygame.image.load("res/rescuer-right.png")
-rescuer_damaged_image = pygame.image.load("res/rescuer-damaged.png")
 rescuer_rect = rescuer_image.get_rect()
+rescuer_damaged_image = pygame.image.load("res/rescuer-damaged.png")
+
+animal_sanctuary_image = pygame.image.load("res/animalSanctuary.png")
+animal_sanctuary_rect = animal_sanctuary_image.get_rect()
+animal_sanctuary_rect.x = WINDOW_WIDTH/2 - 64
+animal_sanctuary_rect.y = WINDOW_HEIGHT - 128
+
+vet_sign_image = pygame.image.load("res/veterinary.png")
+vet_sign_rect = vet_sign_image.get_rect()
+vet_sign_rect.x = WINDOW_WIDTH/2 - 90
+vet_sign_rect.y = WINDOW_HEIGHT - 96
+
 game_over = False
+level_passed = False
+animal_counter = 0
+required_number_of_animals = 2
+
 # Define the restart button
-# restart_button = pygame.Rect(250, 400, 100, 50)  # x, y, width, height
-restart_rect = pygame.Rect(WINDOW_WIDTH/2 - 50, WINDOW_HEIGHT/2 + 50, 100, 50)
+restart_rect = pygame.draw.rect(window, (255, 0, 0), (WINDOW_WIDTH/2 - 50, WINDOW_HEIGHT/2 + 50, 100, 50))
 
 # Define the Animal class
 class Animal:
@@ -41,6 +55,9 @@ class Animal:
 
     def vanish(self):
         self.is_vanished = True
+
+    def get_image(self):
+        return self.image
 
 # Load the animal images and create animal objects
 fox_image_path = "res/fox.png"
@@ -64,26 +81,17 @@ class Obstacle(pygame.sprite.Sprite):
 
 obstacle_list = pygame.sprite.Group()
 
-fire = Obstacle("res/flame.png")
+fire = Obstacle("res/fire.png")
 fire.setxy(150, 250)
 garbage = Obstacle("res/garbage.png")
-garbage.setxy(250, 350)
+garbage.setxy(550, 350)
 cactus = Obstacle("res/cactus.png")
 cactus.setxy(350, 450)
-
 
 
 obstacle_list.add(fire)
 obstacle_list.add(garbage)
 obstacle_list.add(cactus)
-
-x = 150
-y = 150
-for i in range(14):
-    fire = Obstacle("res/flame.png")
-    fire.setxy(x, y)
-    obstacle_list.add(fire)
-    x+=40
 
 def restart_game():
     global game_over, rescuer_rect, rescuer_image, animals, obstacle_list
@@ -95,7 +103,7 @@ def restart_game():
         animal.is_vanished = False
     obstacle_list.empty()
     
-    fire = Obstacle("res/flame.png")
+    fire = Obstacle("res/fire.png")
     fire.setxy(150, 250)
     garbage = Obstacle("res/garbage.png")
     garbage.setxy(250, 350)
@@ -108,26 +116,42 @@ def restart_game():
     x = 150
     y = 150
     for i in range(14):
-        fire = Obstacle("res/flame.png")
+        fire = Obstacle("res/fire.png")
         fire.setxy(x, y)
         obstacle_list.add(fire)
         x+=40
     
-def show_message(message, show_restart_button=False):
+def show_message(message, game_status):
     font = pygame.font.Font(None, 36)
     text = font.render(message, True, (255, 255, 255))
     text_rect = text.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/2))
     window.blit(text, text_rect)
 
-    if show_restart_button:
+    if game_status == "failed":
         # Draw restart button
         restart_button_rect = pygame.draw.rect(window, (255, 0, 0), (WINDOW_WIDTH/2 - 50, WINDOW_HEIGHT/2 + 35, 100, 50))
         restart_button_font = pygame.font.Font(None, 40)
         restart_button_text = restart_button_font.render("Restart", True, (255, 255, 255))
-        # restart_button_text_rect = restart_button_text.get_rect(center=restart_rect.center)
         window.blit(restart_button_text, restart_rect)
+    elif game_status == "passed":
+        animal_counter_rect = pygame.Rect(WINDOW_WIDTH/2 - 100, WINDOW_HEIGHT/2 + 35, 100, 50)
+        animal_counter_font = pygame.font.Font(None, 30)
+        animal_counter_text = animal_counter_font.render("Animals collected: " + str(animal_counter), True, (255, 255, 255))
+        window.blit(animal_counter_text, animal_counter_rect)
+    elif game_status == "not passed":
+        animal_counter_rect = pygame.Rect(WINDOW_WIDTH/2 - 150, WINDOW_HEIGHT/2 + 35, 100, 50)
+        animal_counter_font = pygame.font.Font(None, 30)
+        animal_counter_text = animal_counter_font.render("Please collect atleast " + str(required_number_of_animals) + " animals.", True, (255, 255, 255))
+        window.blit(animal_counter_text, animal_counter_rect)
 
     pygame.display.update()
+
+def draw_animal_counter(window, animal_counter):
+    font = pygame.font.SysFont('Arial', 20)
+    counter_text = font.render("Animals Collected: " + str(animal_counter), True, (0, 0, 0))
+    counter_rect = counter_text.get_rect()
+    counter_rect.topright = (WINDOW_WIDTH - 10, 10)
+    window.blit(counter_text, counter_rect)
 
 # Set the speed of the rescuer
 rescuer_speed = 1
@@ -148,9 +172,6 @@ while True:
             pygame.quit()
             exit()
     
-    # # Check if the game is over
-    # if game_over:
-        
     # Get the state of the arrow keys
     keys = pygame.key.get_pressed()
 
@@ -182,6 +203,7 @@ while True:
     for animal in animals:
         if not animal.is_vanished and rescuer_rect.colliderect(animal.rect):
             animal.vanish()
+            animal_counter = animal_counter + 1
 
     # Clear the screen with the forest green color
     window.fill(FOREST_GREEN)
@@ -190,24 +212,35 @@ while True:
     for animal in animals:
         animal.draw(window)
         
-    
-
-    # Draw the rescuer image
+    # Draw the rescuer, sanctuary image
     window.blit(rescuer_image, rescuer_rect)
+    window.blit(animal_sanctuary_image, animal_sanctuary_rect)
+    window.blit(vet_sign_image, vet_sign_rect)
+
+    draw_animal_counter(window, animal_counter)
 
     obstacle_list.draw(window)
 
     for obstacle in obstacle_list:
             if rescuer_rect.colliderect(obstacle.rect):
                 rescuer_image = rescuer_damaged_image
-                game_over = True
                 
                 # Show the game over message and restart button
-                show_message("Game Over", True)
+                show_message("Game Over", "failed")
 
                 # Check if the restart button is clicked
                 if pygame.mouse.get_pressed()[0] and restart_rect.collidepoint(pygame.mouse.get_pos()):
                     restart_game()
+                    animal_counter = 0
+
+    if rescuer_rect.colliderect(animal_sanctuary_rect):
+        if animal_counter >= required_number_of_animals:
+            level_passed = True
+            show_message("Level Passed", "passed")
+            if pygame.mouse.get_pressed()[0] and restart_rect.collidepoint(pygame.mouse.get_pos()):
+                    print(level_passed)
+        else:
+            show_message("Level not passed", "not passed")
 
     # Update the window
     pygame.display.update()
