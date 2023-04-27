@@ -98,13 +98,15 @@ obstacle_list = pygame.sprite.Group()
 fire = Obstacle("res/fire.png")
 fire.setxy(150, 250)
 garbage = Obstacle("res/garbage.png")
-garbage.setxy(550, 350)
+garbage.setxy(200, 0)
+garbage2 = Obstacle("res/garbage.png")
+garbage2.setxy(20, 550)
 cactus = Obstacle("res/cactus.png")
 cactus.setxy(350, 450)
+cactus2 = Obstacle("res/cactus.png")
+cactus2.setxy(550, 350)
 
-obstacle_list.add(fire)
-obstacle_list.add(garbage)
-obstacle_list.add(cactus)
+obstacle_list.add(fire, garbage, garbage2, cactus, cactus2)
 
 def spawn_fire_randomly():
     global rescuer_rect, animals
@@ -158,6 +160,17 @@ def draw_level_failed_menu():
     quit_button_rect.y = WINDOW_HEIGHT/2 + 250
     quit_button_image = pygame.image.load("res/quitButton.png")
     window.blit(quit_button_image, quit_button_rect)
+
+def draw_how_to_play_menu():
+    # Draw the level failed menu background image
+    menu_bg_image = pygame.image.load("res/htpMenuBackground.png")
+    window.blit(menu_bg_image, (0, 0))
+
+    # load and display start button image(rect defined in the global variable space)
+    start_button_rect.x = WINDOW_WIDTH/2 - 100
+    start_button_rect.y = WINDOW_HEIGHT/2 + 280    
+    start_button_image = pygame.image.load("res/startButton.png")
+    window.blit(start_button_image, start_button_rect)
 
 def draw_level_passed_menu():
     # Draw the level passed menu background image
@@ -213,13 +226,15 @@ def restart_game():
     fire = Obstacle("res/fire.png")
     fire.setxy(150, 250)
     garbage = Obstacle("res/garbage.png")
-    garbage.setxy(550, 350)
+    garbage.setxy(200, 50)
+    garbage2 = Obstacle("res/garbage.png")
+    garbage2.setxy(50, 550)
     cactus = Obstacle("res/cactus.png")
     cactus.setxy(350, 450)
+    cactus2 = Obstacle("res/cactus.png")
+    cactus2.setxy(550, 350)
 
-    obstacle_list.add(fire)
-    obstacle_list.add(garbage)
-    obstacle_list.add(cactus)
+    obstacle_list.add(fire, garbage, garbage2, cactus, cactus2)
 
 # Appears when player goes to the animal shelter without collecting the minimum number of animals
 def draw_level_not_passed_yet():
@@ -232,13 +247,13 @@ def draw_animal_counter(window):
     font = pygame.font.SysFont('Arial', 20)
     counter_text = font.render("Animals Collected: " + str(animal_counter), True, (0, 0, 0))
     counter_rect = counter_text.get_rect()
-    counter_rect.topright = (WINDOW_WIDTH - 10, 40)
+    counter_rect.topright = (WINDOW_WIDTH - 10, 130)
     window.blit(counter_text, counter_rect)
 def draw_required_animals(window):
     font = pygame.font.SysFont('Arial', 20)
     counter_text = font.render("Animals Required : " + str(required_number_of_animals), True, (0, 0, 0))
     counter_rect = counter_text.get_rect()
-    counter_rect.topright = (WINDOW_WIDTH - 10, 10)
+    counter_rect.topright = (WINDOW_WIDTH - 10, 100)
     window.blit(counter_text, counter_rect)
 
 # Set the speed of the rescuer
@@ -260,6 +275,9 @@ def menu_loop():
                 mouse_pos = pygame.mouse.get_pos()
                 if start_button_rect.collidepoint(mouse_pos):
                     game_loop()
+                elif htp_button_rect.collidepoint(mouse_pos):
+                    draw_how_to_play_menu()
+                    menu_loop()
                 elif quit_button_rect.collidepoint(mouse_pos):
                     pygame.quit()
                     sys.exit()
@@ -313,8 +331,9 @@ def game_loop():
                 animal.vanish()
                 animal_counter = animal_counter + 1
 
-        # Clear the screen with the forest green color
-        window.fill(FOREST_GREEN)
+        # set background
+        menu_bg_image = pygame.image.load("res/gameBackground.png")
+        window.blit(menu_bg_image, (0, 0))
 
         # Draw the animals
         for animal in animals:
