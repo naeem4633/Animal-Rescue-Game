@@ -3,7 +3,6 @@ import sys
 import time
 import random
 
-
 # Initialize Pygame
 pygame.init()
 
@@ -24,6 +23,7 @@ pygame.display.set_caption("Animal Rescue Game")
 
 # Define the forest green color
 FOREST_GREEN = (34, 139, 34)
+
 
 # Load the rescuer image
 rescuer_image = pygame.image.load("res/rescuer-right.png")
@@ -317,6 +317,29 @@ def game_loop():
             rescuer_rect.move_ip(0, -rescuer_speed)
         if keys[MOVE_DOWN]:
             rescuer_rect.move_ip(0, rescuer_speed)
+
+        # Get the position of the mouse cursor
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        # Check if the left mouse button is pressed
+        if pygame.mouse.get_pressed()[0]:
+            # Calculate the distance between the player and the mouse cursor
+            dist_x = mouse_x - rescuer_rect.centerx
+            dist_y = mouse_y - rescuer_rect.centery
+
+            # Move the player in the direction of the mouse cursor
+            if abs(dist_x) > abs(dist_y):
+                if dist_x > 0:
+                    rescuer_image = rescuer_image_right
+                    rescuer_rect.move_ip(rescuer_speed, 0)
+                else:
+                    rescuer_image = rescuer_image_left
+                    rescuer_rect.move_ip(-rescuer_speed, 0)
+            else:
+                if dist_y > 0:
+                    rescuer_rect.move_ip(0, rescuer_speed)
+                else:
+                    rescuer_rect.move_ip(0, -rescuer_speed)
 
         # Keep the rescuer within screenbounds
         if rescuer_rect.left < 0:
