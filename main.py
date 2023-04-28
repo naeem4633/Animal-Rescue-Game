@@ -2,6 +2,7 @@ import pygame
 import sys
 import time
 import random
+from classes import Animal, Obstacle
 
 # Initialize Pygame
 pygame.init()
@@ -54,27 +55,6 @@ quit_button_rect = pygame.Rect((WINDOW_WIDTH/2 - 100, WINDOW_HEIGHT/2 + 200, 200
 restart_button_rect = pygame.Rect((WINDOW_WIDTH/2 - 300, WINDOW_HEIGHT/2 + 250, 200, 100))
 next_level_button_rect = pygame.Rect((WINDOW_WIDTH/2 - 100, WINDOW_HEIGHT/2 - 100, 200, 100))
 
-# Define the Animal class
-class Animal:
-    def __init__(self, image_path, x, y):
-        self.image = pygame.image.load(image_path)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.is_vanished = False
-
-    def draw(self, window):
-        if not self.is_vanished:
-            window.blit(self.image, self.rect)
-
-    def vanish(self):
-        self.is_vanished = True
-
-    def getx(self):
-        return self.rect.x
-    def gety(self):
-        return self.rect.y
-
 # Load the animal images and create animal objects
 fox_image_path = "res/fox.png"
 chameleon_image_path = "res/chameleon.png"
@@ -85,18 +65,7 @@ animals = [
     Animal(koala_image_path, 500, 600)
 ]
 
-class Obstacle(pygame.sprite.Sprite):
-    def __init__(self, image_path):
-        super().__init__()
-        self.image = pygame.image.load(image_path)
-        self.rect = self.image.get_rect()
-
-    def setxy(self, x, y):
-        self.rect.x = x
-        self.rect.y = y
-
 obstacle_list = pygame.sprite.Group()
-
 
 fire = Obstacle("res/fire.png")
 fire.setxy(150, 250)
@@ -110,24 +79,6 @@ cactus2 = Obstacle("res/cactus.png")
 cactus2.setxy(550, 350)
 
 obstacle_list.add(fire, garbage, garbage2, cactus, cactus2)
-
-def spawn_fire_randomly():
-    global rescuer_rect, animals
-    x = random.randint(0, 700)
-    y = random.randint(0, 700)
-    is_overlapping_animal = False
-    is_overlapping_rescuer = False
-    for animal in animals:
-        if abs(x - animal.getx()) < 100 and abs(y - animal.gety()) < 100:
-            is_overlapping_animal = True
-            break
-    if abs(x - rescuer_rect.x) < 100 and abs(y - rescuer_rect.y) < 100:
-        is_overlapping_rescuer = True
-            
-    if not is_overlapping_animal and not is_overlapping_rescuer:
-        fire = Obstacle("res/fire.png")
-        fire.setxy(x, y)
-        obstacle_list.add(fire)
 
 def draw_start_menu():
     # Draw the start menu background image
@@ -260,10 +211,11 @@ def draw_required_animals(window):
     counter_rect.topright = (WINDOW_WIDTH - 10, 100)
     window.blit(counter_text, counter_rect)
 def draw_player_health(window):
-    font = pygame.font.SysFont('Arial', 20)
-    counter_text = font.render("HEALTH : " + str(health), True, (0, 0, 0))
+    font = pygame.font.SysFont('Arial', 30)
+    counter_text = font.render("HEALTH : " + str(health), True, (255, 255, 255))
     counter_rect = counter_text.get_rect()
-    counter_rect.topright = (WINDOW_WIDTH -430, 10)
+    # counter_rect.topright = (WINDOW_WIDTH -430, 10)
+    counter_rect.topright = (WINDOW_WIDTH/2+50, WINDOW_HEIGHT-50)
     window.blit(counter_text, counter_rect)
 
 # Set the speed of the rescuer
@@ -310,7 +262,8 @@ def game_loop():
                 pygame.quit()
                 exit()
             elif event.type == fire_timer_event:
-                spawn_fire_randomly()
+                fire = Obstacle("res/fire.png")
+                fire.spawn_randomly(rescuer_rect, animals, obstacle_list)
 
         # Get the state of the arrow keys
         keys = pygame.key.get_pressed()
@@ -388,7 +341,6 @@ def game_loop():
                 if rescuer_rect.colliderect(obstacle.rect):
                     health = health - 25
                     pygame.time.delay(300)
-                    print(health)
                     if health <= 0:
                         if rescuer_image == rescuer_image_right:
                             rescuer_image = rescuer_damaged_image_right
