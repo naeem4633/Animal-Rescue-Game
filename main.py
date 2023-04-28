@@ -215,7 +215,8 @@ def too_much_fire():
 
 def restart_game():
     # Get the global values of these variables, reset animal counter, reset rescuer position
-    global rescuer_rect, rescuer_image, animals, obstacle_list, animal_counter
+    global rescuer_rect, rescuer_image, animals, obstacle_list, animal_counter, health
+    health = 100
     animal_counter = 0
     rescuer_image = pygame.image.load("res/rescuer-right.png")
     rescuer_rect.x = 50
@@ -258,6 +259,12 @@ def draw_required_animals(window):
     counter_rect = counter_text.get_rect()
     counter_rect.topright = (WINDOW_WIDTH - 10, 100)
     window.blit(counter_text, counter_rect)
+def draw_player_health(window):
+    font = pygame.font.SysFont('Arial', 20)
+    counter_text = font.render("HEALTH : " + str(health), True, (0, 0, 0))
+    counter_rect = counter_text.get_rect()
+    counter_rect.topright = (WINDOW_WIDTH -430, 10)
+    window.blit(counter_text, counter_rect)
 
 # Set the speed of the rescuer
 rescuer_speed = 5
@@ -266,6 +273,8 @@ MOVE_LEFT = pygame.K_LEFT
 MOVE_RIGHT = pygame.K_RIGHT
 MOVE_UP = pygame.K_UP
 MOVE_DOWN = pygame.K_DOWN
+
+health = 100
 
 # Called when displaying any kind of menus
 def menu_loop():
@@ -291,7 +300,7 @@ def menu_loop():
         pygame.display.update()
 
 def game_loop():
-    global rescuer_rect, rescuer_image, animals, obstacle_list, animal_counter
+    global rescuer_rect, rescuer_image, animals, obstacle_list, animal_counter, health
     # Main game loop
     while True:
         # Check for events
@@ -372,19 +381,24 @@ def game_loop():
 
         draw_required_animals(window)
         draw_animal_counter(window)
+        draw_player_health(window)
         obstacle_list.draw(window)
 
         for obstacle in obstacle_list:
                 if rescuer_rect.colliderect(obstacle.rect):
-                    if rescuer_image == rescuer_image_right:
-                        rescuer_image = rescuer_damaged_image_right
-                    else:
-                        rescuer_image = rescuer_damaged_image_left
-                    window.blit(rescuer_image, rescuer_rect)
-                    pygame.display.update()
-                    pygame.time.delay(500)
-                    draw_level_failed_menu()
-                    menu_loop()
+                    health = health - 25
+                    pygame.time.delay(300)
+                    print(health)
+                    if health <= 0:
+                        if rescuer_image == rescuer_image_right:
+                            rescuer_image = rescuer_damaged_image_right
+                        else:
+                            rescuer_image = rescuer_damaged_image_left
+                        window.blit(rescuer_image, rescuer_rect)
+                        pygame.display.update()
+                        pygame.time.delay(500)
+                        draw_level_failed_menu()
+                        menu_loop()
 
         if rescuer_rect.colliderect(animal_sanctuary_rect):
             if animal_counter >= required_number_of_animals:
@@ -394,7 +408,7 @@ def game_loop():
             elif animal_counter <= required_number_of_animals:
                 draw_level_not_passed_yet()
 
-        if(len(obstacle_list) > 150):
+        if(len(obstacle_list) > 100):
             too_much_fire()
             menu_loop()
 
