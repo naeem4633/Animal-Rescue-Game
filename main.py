@@ -27,8 +27,11 @@ FOREST_GREEN = (34, 139, 34)
 
 # Load the rescuer image
 rescuer_image = pygame.image.load("res/rescuer-right.png")
+rescuer_image_right = pygame.image.load("res/rescuer-right.png")
+rescuer_image_left = pygame.image.load("res/rescuer-left.png")
 rescuer_rect = rescuer_image.get_rect()
-rescuer_damaged_image = pygame.image.load("res/rescuer-damaged.png")
+rescuer_damaged_image_right = pygame.image.load("res/rescuer-damaged-right.png")
+rescuer_damaged_image_left = pygame.image.load("res/rescuer-damaged-left.png")
 
 animal_sanctuary_image = pygame.image.load("res/animalSanctuary.png")
 animal_sanctuary_rect = animal_sanctuary_image.get_rect()
@@ -228,7 +231,7 @@ def restart_game():
     garbage = Obstacle("res/garbage.png")
     garbage.setxy(200, 50)
     garbage2 = Obstacle("res/garbage.png")
-    garbage2.setxy(50, 550)
+    garbage2.setxy(20, 550)
     cactus = Obstacle("res/cactus.png")
     cactus.setxy(350, 450)
     cactus2 = Obstacle("res/cactus.png")
@@ -305,10 +308,10 @@ def game_loop():
 
         # Move the rescuer based on the arrow key state
         if keys[MOVE_LEFT]:
-            rescuer_image = pygame.image.load("res/rescuer-left.png")
+            rescuer_image = rescuer_image_left
             rescuer_rect.move_ip(-rescuer_speed, 0)
         if keys[MOVE_RIGHT]:
-            rescuer_image = pygame.image.load("res/rescuer-right.png")
+            rescuer_image = rescuer_image_right
             rescuer_rect.move_ip(rescuer_speed, 0)
         if keys[MOVE_UP]:
             rescuer_rect.move_ip(0, -rescuer_speed)
@@ -350,8 +353,13 @@ def game_loop():
 
         for obstacle in obstacle_list:
                 if rescuer_rect.colliderect(obstacle.rect):
-                    rescuer_image = rescuer_damaged_image
-                    time.sleep(0.2)
+                    if rescuer_image == rescuer_image_right:
+                        rescuer_image = rescuer_damaged_image_right
+                    else:
+                        rescuer_image = rescuer_damaged_image_left
+                    window.blit(rescuer_image, rescuer_rect)
+                    pygame.display.update()
+                    pygame.time.delay(500)
                     draw_level_failed_menu()
                     menu_loop()
 
