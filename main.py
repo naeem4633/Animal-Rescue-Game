@@ -153,7 +153,7 @@ def too_much_fire():
     window.blit(menu_bg_image, (0, 0))
 
     # load and display restart button image(rect defined in the global variable space)
-    restart_button_image = pygame.image.load("res/restartButton.png")
+    restart_button_image = pygame.image.load("res/restartButtonRed.png")
     restart_button_rect.x = WINDOW_WIDTH/2 - 300
     restart_button_rect.y = WINDOW_HEIGHT/2 + 250
     window.blit(restart_button_image, restart_button_rect)
@@ -161,7 +161,7 @@ def too_much_fire():
     # load and display restart button image(rect defined in the global variable space)
     quit_button_rect.x = WINDOW_WIDTH/2 + 100
     quit_button_rect.y = WINDOW_HEIGHT/2 + 250
-    quit_button_image = pygame.image.load("res/quitButton.png")
+    quit_button_image = pygame.image.load("res/quitButtonRed.png")
     window.blit(quit_button_image, quit_button_rect)
 
 def restart_game():
