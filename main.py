@@ -6,6 +6,9 @@ from classes import Animal, Obstacle
 
 # Initialize Pygame
 pygame.init()
+pygame.mixer.init()
+pygame.mixer.music.load('res/backgroundSound.mp3')
+pygame.mixer.music.play()
 
 # Define the window size
 WINDOW_WIDTH = 800
@@ -122,7 +125,7 @@ def draw_how_to_play_menu():
 
     # load and display start button image(rect defined in the global variable space)
     start_button_rect.x = WINDOW_WIDTH/2 - 100
-    start_button_rect.y = WINDOW_HEIGHT/2 + 280    
+    start_button_rect.y = WINDOW_HEIGHT/2 + 305    
     start_button_image = pygame.image.load("res/startButton.png")
     window.blit(start_button_image, start_button_rect)
 
@@ -172,6 +175,9 @@ def restart_game():
     rescuer_image = pygame.image.load("res/rescuer-right.png")
     rescuer_rect.x = 50
     rescuer_rect.y = 50
+
+    pygame.mixer.music.load('res/backgroundSound.mp3')
+    pygame.mixer.music.play()
 
     # reset obstacles, animals
     for animal in animals:
@@ -349,6 +355,8 @@ def game_loop():
                         window.blit(rescuer_image, rescuer_rect)
                         pygame.display.update()
                         pygame.time.delay(500)
+                        pygame.mixer.music.load('res/no.mp3')
+                        pygame.mixer.music.play()
                         draw_level_failed_menu()
                         menu_loop()
 
@@ -356,6 +364,8 @@ def game_loop():
             if animal_counter >= required_number_of_animals:
                 time.sleep(0.2)
                 draw_level_passed_menu()
+                pygame.mixer.music.load('res/levelPassed.mp3')
+                pygame.mixer.music.play()
                 menu_loop()
             elif animal_counter <= required_number_of_animals:
                 draw_level_not_passed_yet()
